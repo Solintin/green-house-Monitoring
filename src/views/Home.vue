@@ -119,7 +119,7 @@ export default {
   },
   created() {
     this.currentUser = auth.currentUser.email;
-    console.log(AllSensors);
+    // console.log(this.AllSensors);
   },
   mounted() {
     this.$store.dispatch("SETALLVALUES");
