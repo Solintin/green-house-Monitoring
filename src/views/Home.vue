@@ -19,7 +19,7 @@
       class="flex justify-between items-center text-blue-500 text-bold text-lg"
     >
       <div>
-        <p>Loggged in as</p>
+        <p>Logged in as</p>
         <p>{{ currentUser }}</p>
       </div>
       <div>
