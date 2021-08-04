@@ -9,8 +9,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    ControlValues: "",
-    AllSensors: "",
+    ControlValues: null,
+    AllSensors: null,
+    loading: true,
   },
   mutations: {
     setControlValues(state, val) {
@@ -19,25 +20,61 @@ export default new Vuex.Store({
     setAllSensor(state, val) {
       state.AllSensors = val;
     },
+    setLoading(state, val) {
+      state.loading = val;
+    },
   },
   actions: {
-    async SETCONTROLVALUES({ commit }) {
+    SETCONTROLVALUES({ commit }) {
       try {
-        var starCountRef = firebase.database().ref("ControlValues/settings");
+        const starCountRef = firebase.database().ref("ControlValues/settings");
         starCountRef.on("value", (snapshot) => {
           const data = snapshot.val();
           commit("setControlValues", data);
+          commit("setLoading", false);
         });
       } catch (error) {
         console.log(error);
       }
     },
-    async SETALLVALUES({ commit }) {
+    // Fecth All Current Data
+    SETALLVALUES({ commit }) {
       try {
-        var starCountRef = firebase.database().ref("Greenhouse");
-        starCountRef.on("value", (snapshot) => {
-          const data = snapshot.val();
-          commit("setAllSensor", data);
+        const starCountRef = firebase.database().ref("Greenhouse");
+        starCountRef.on("value", async (snapshot) => {
+          const data = await snapshot.val();
+          commit("setLoading", false);
+          commit("setAllSensor", data.allSensors.split(","));
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    // Override the initial Settings
+    OVERRIDESETTINGS({}, data) {
+      try {
+        const starCountRef = firebase.database().ref("ControlValues/settings");
+        starCountRef.set(data, (error) => {
+          if (error) {
+            console.log('Override failed...');
+          } else {
+            console.log("Override successfully!");
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+   //TAKEN TOTAL CONTROL
+    ACTIONOVERTAKER({}, data) {
+      try {
+        const starCountRef = firebase.database().ref("ActionOverRider");
+        starCountRef.set(data, (error) => {
+          if (error) {
+            console.log('Override failed...');
+          } else {
+            console.log("Override successfully!");
+          }
         });
       } catch (error) {
         console.log(error);
@@ -51,7 +88,6 @@ export default new Vuex.Store({
           form.password
         );
         alert("Welcome " + user.email);
-        console.log(user);
         router.push("/greenhouse");
       } catch (error) {
         alert(error.message);

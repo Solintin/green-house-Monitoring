@@ -1,41 +1,36 @@
-import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Vue from 'vue'
 import Home from '../views/Home.vue'
 import Settings from '../views/Settings.vue'
 import Login from '../views/Login.vue'
 import { auth } from '../firebase';
 
-
 Vue.use(VueRouter)
-
 const routes = [
   {
-    path: '/',
-    name: 'Login',
-    component: Login
+    path: "/",
+    name: "Login",
+    component: Login,
   },
-  
+
   {
-    path: '/settings',
-    name: 'settings',
+    path: "/settings",
+    name: "settings",
     component: Settings,
-    meta : {
-      requireAuth : true
-    }
+    meta: {
+      requireAuth: true,
+    },
   },
-  
+
   {
-    path: '/greenhouse',
-    name: 'Home',
+    path: "/greenhouse",
+    name: "Home",
     component: Home,
     meta: {
       requireAuth: true,
     },
-    
   },
-  { path: '*', redirect: '/' }
-  
-]
+];
 
 const router = new VueRouter({
   mode: 'history',
@@ -43,15 +38,20 @@ const router = new VueRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some((x) => x.meta.requireAuth);
 
-  if (requiresAuth && !auth.currentUser) {
-    next("/");
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requireAuth)) {
+    if (auth.currentUser) {
+      next();
+    } else {
+      alert('You must be logged in to see this page');
+      next({
+        path: '/',
+      });
+    }
   } else {
     next();
   }
 });
-
 
 export default router
